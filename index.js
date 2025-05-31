@@ -29,10 +29,29 @@ function reload(){
     window.location.reload();
 }
 
+// async function fetchNews(query) {
+//     const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+//     const data = await res.json();
+//     bindData(data.articles);
+// }
 async function fetchNews(query) {
-    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
-    const data = await res.json();
-    bindData(data.articles);
+    try {
+        const res = await fetch(`http://localhost:5000/news?q=${query}`);
+       
+        const data = await res.json();
+
+        console.log("NewsAPI raw response:", data);
+        
+        if (!data.articles || !Array.isArray(data.articles)) {
+            throw new Error("No articles found in response");
+        }
+
+        bindData(data.articles);
+    } catch (error) {
+        console.error("Error fetching news:", error);
+        const cardContainer = document.getElementById('cards-container');
+        cardContainer.innerHTML = `<p style="color: red;">Failed to load news. Please check your API key or CORS settings.</p>`;
+    }
 }
 
 function bindData(articles){
